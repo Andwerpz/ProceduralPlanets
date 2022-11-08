@@ -16,7 +16,7 @@ public class Planet {
 	//needs to procedurally generate it's own mesh. 
 	//vertex coloring? needs it's own shader as well if not. 
 
-	private static int verticesPerEdge = 400;
+	private static int verticesPerEdge = 200;
 
 	private Model model;
 
@@ -148,6 +148,8 @@ public class Planet {
 		for (Vec3 v : vertices) {
 			v.addi(translate);
 		}
+
+		NoiseGenerator.randomizeNoise();
 
 		//map cube to sphere
 		for (Vec3 v : vertices) {
