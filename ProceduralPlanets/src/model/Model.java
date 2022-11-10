@@ -84,9 +84,6 @@ public class Model {
 	// triangles.
 	private ArrayList<CollisionMesh> collisionMeshes;
 
-	private boolean customShaderEnabled = false;
-	private Shader customShader;
-
 	public Model() {
 		this.meshes = new ArrayList<>();
 		this.defaultMaterials = new ArrayList<>();
@@ -471,7 +468,7 @@ public class Model {
 			}
 		}
 
-		scenesNeedingUpdates.clear();
+		this.scenesNeedingUpdates.clear();
 	}
 
 	public static ArrayList<Vec3[]> rayIntersect(int scene, Vec3 ray_origin, Vec3 ray_dir) {
@@ -563,6 +560,7 @@ public class Model {
 			else {
 				DEFAULT_TEXTURE_MATERIAL.bind();
 			}
+
 			this.meshes.get(i).render(scene);
 		}
 	}
@@ -583,6 +581,10 @@ public class Model {
 
 		for (TextureMaterial t : this.textureMaterials) {
 			t.kill();
+		}
+
+		for (VertexArray v : this.meshes) {
+			v.kill();
 		}
 
 		models.remove(this);

@@ -5,39 +5,40 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import graphics.Shader;
 import graphics.TextureMaterial;
 import graphics.VertexArray;
 import model.Model;
+import util.Mat4;
 import util.MathUtils;
 import util.NoiseGenerator;
 import util.Vec3;
 
-public class Planet {
+public class Planet extends Model {
 	//needs to procedurally generate it's own mesh. 
 	//vertex coloring? needs it's own shader as well if not. 
 
-	private static int verticesPerEdge = 200;
+	private static int verticesPerEdge = 400;
 
-	private Model model;
-
-	private Vec3 pos, vel;
-	private float radius;
-
-	public Planet(Vec3 pos, float radius) {
-		this.pos = new Vec3(pos);
-		this.vel = new Vec3(0);
-		this.radius = radius;
-
-		this.generate();
+	public Planet() {
+		super();
 	}
 
-	public void generate() {
-		assert verticesPerEdge >= 2 : "Can't generate cube with less than 2 vertices per edge";
+	@Override
+	public void create() {
+		VertexArray v = this.generate();
 
-		//get rid of old model if it exists
-		if (this.model != null) {
-			this.model.kill();
-		}
+		this.meshes.add(v);
+		this.textureMaterials.add(DEFAULT_TEXTURE_MATERIAL);
+		this.defaultMaterials.add(DEFAULT_MATERIAL);
+	}
+
+	public long addInstance(Vec3 pos, float radius, int scene) {
+		return Model.addInstance(this, Mat4.scale(radius).mul(Mat4.translate(pos)), scene);
+	}
+
+	public VertexArray generate() {
+		assert verticesPerEdge >= 2 : "Can't generate cube with less than 2 vertices per edge";
 
 		//generate cube vertices
 		ArrayList<Vec3> vertices = new ArrayList<>();
@@ -187,7 +188,7 @@ public class Planet {
 				totalHeight += elevation;
 			}
 
-			v.setLength((1f + totalHeight) * this.radius);
+			v.setLength(1f + totalHeight);
 		}
 
 		//convert to vertex array
@@ -245,11 +246,7 @@ public class Planet {
 
 		VertexArray vertexArray = new VertexArray(verticesArr, uvsArr, indicesArr, GL_TRIANGLES);
 
-		this.model = new Model(vertexArray, TextureMaterial.defaultTextureMaterial());
-	}
-
-	public Model getModel() {
-		return this.model;
+		return vertexArray;
 	}
 
 }

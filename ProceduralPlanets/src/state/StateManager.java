@@ -75,7 +75,7 @@ public class StateManager {
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 
-		Shader.IMG_POST_PROCESS.enable();
+		Shader.IMG_POST_PROCESS.bind();
 		this.outputColorMap.bind(GL_TEXTURE0);
 		screenQuad.render();
 	}

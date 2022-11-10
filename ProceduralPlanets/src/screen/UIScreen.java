@@ -77,7 +77,7 @@ public class UIScreen extends Screen {
 		glClearDepth(1); // maximum value
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-		Shader.GEOMETRY.enable();
+		Shader.GEOMETRY.bind();
 		Shader.GEOMETRY.setUniformMat4("pr_matrix", camera.getProjectionMatrix());
 		Shader.GEOMETRY.setUniformMat4("vw_matrix", camera.getViewMatrix());
 		Shader.GEOMETRY.setUniform3f("view_pos", camera.getPos());
@@ -89,7 +89,7 @@ public class UIScreen extends Screen {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		Shader.SPLASH.enable();
+		Shader.SPLASH.bind();
 		Shader.SPLASH.setUniform1f("alpha", 1f);
 		geometryColorMap.bind(GL_TEXTURE0);
 		// geometryColorIDMap.bind(GL_TEXTURE0);
@@ -105,7 +105,7 @@ public class UIScreen extends Screen {
 		glClearDepth(0); // minimum value
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-		Shader.GEOMETRY.enable();
+		Shader.GEOMETRY.bind();
 		Shader.GEOMETRY.setUniformMat4("pr_matrix", camera.getProjectionMatrix());
 		Shader.GEOMETRY.setUniformMat4("vw_matrix", camera.getViewMatrix());
 		Shader.GEOMETRY.setUniform3f("view_pos", camera.getPos());

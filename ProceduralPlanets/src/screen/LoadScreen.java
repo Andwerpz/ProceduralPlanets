@@ -38,7 +38,7 @@ public class LoadScreen extends Screen {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		Shader.SPLASH.enable();
+		Shader.SPLASH.bind();
 		Shader.SPLASH.setUniform1f("alpha", this.alpha);
 		loadingTexture.bind(GL_TEXTURE0);
 		screenQuad.render();

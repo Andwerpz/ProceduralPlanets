@@ -91,8 +91,8 @@ void main() {
 	vec3 shallowWaterColor = vec3(133, 216, 229) / 255.0;
 	vec3 deepWaterColor = vec3(2, 75, 134) / 255.0;
 	
-	float shallowWaterDepth = 0.5;
-	float deepWaterDepth = 1.5;
+	float shallowWaterDepth = 0.2;
+	float deepWaterDepth = 1;
 	
 	vec3 blendedColor = blendColors(surfaceColor, shallowWaterColor, -0.05, shallowWaterDepth, waterDepth);
 	if(waterDepth > shallowWaterDepth) {

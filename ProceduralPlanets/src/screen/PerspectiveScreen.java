@@ -224,7 +224,7 @@ public class PerspectiveScreen extends Screen {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Texture.bindingEnabled = true;
 
-		Shader.GEOMETRY.enable();
+		Shader.GEOMETRY.bind();
 		this.setCameraFOV(this.worldFOV);
 		this.setShaderCameraUniforms(Shader.GEOMETRY, this.camera);
 		Model.renderModels(this.world_scene);
@@ -244,7 +244,7 @@ public class PerspectiveScreen extends Screen {
 			//first two are for rgb, while last two are for alpha
 			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
-			Shader.DECAL.enable();
+			Shader.DECAL.bind();
 			Shader.DECAL.setUniformMat4("pr_matrix", camera.getProjectionMatrix());
 			Shader.DECAL.setUniformMat4("vw_matrix", camera.getViewMatrix());
 			this.geometryPositionMap.bind(GL_TEXTURE4);
@@ -265,7 +265,7 @@ public class PerspectiveScreen extends Screen {
 			glClearDepth(1); // maximum value
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			Shader.GEOMETRY.enable();
+			Shader.GEOMETRY.bind();
 			this.setCameraFOV(this.playermodelFOV);
 			this.setShaderCameraUniforms(Shader.GEOMETRY, this.camera);
 			Model.renderModels(this.playermodel_scene);
@@ -278,7 +278,7 @@ public class PerspectiveScreen extends Screen {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
-		Shader.SKYBOX.enable();
+		Shader.SKYBOX.bind();
 		Shader.SKYBOX.setUniformMat4("vw_matrix", this.camera.getViewMatrix());
 		Shader.SKYBOX.setUniformMat4("pr_matrix", this.camera.getProjectionMatrix());
 		Scene.skyboxes.get(this.world_scene).bind(GL_TEXTURE0);
@@ -291,7 +291,7 @@ public class PerspectiveScreen extends Screen {
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glDisable(GL_BLEND);
 
-		Shader.PLANET_OCEAN.enable();
+		Shader.PLANET_OCEAN.bind();
 		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
 		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -20));
 		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 10f);
@@ -304,7 +304,7 @@ public class PerspectiveScreen extends Screen {
 
 		// -- LIGHTING -- : using information from the geometry buffer, calculate lighting.
 		lightingBuffer.bind();
-		Shader.LIGHTING.enable();
+		Shader.LIGHTING.bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_DEPTH_TEST);
 		glDepthMask(true);
@@ -400,7 +400,7 @@ public class PerspectiveScreen extends Screen {
 					glCullFace(GL_FRONT);
 
 					Shader.LIGHTING.setUniformMat4("lightSpace_matrix", lightMat.mul(lightCamera.getProjectionMatrix()));
-					Shader.DEPTH.enable();
+					Shader.DEPTH.bind();
 
 					this.setShaderCameraUniforms(Shader.DEPTH, lightCamera);
 					Model.renderModels(this.world_scene);
@@ -411,7 +411,7 @@ public class PerspectiveScreen extends Screen {
 					glEnable(GL_BLEND);
 					glDisable(GL_CULL_FACE);
 					glCullFace(GL_BACK);
-					Shader.LIGHTING.enable();
+					Shader.LIGHTING.bind();
 					lights.get(i).bind(Shader.LIGHTING, i);
 					screenQuad.render();
 				}
@@ -421,7 +421,7 @@ public class PerspectiveScreen extends Screen {
 
 				// generate cubemap
 				shadowBuffer.bind();
-				Shader.CUBE_DEPTH.enable();
+				Shader.CUBE_DEPTH.bind();
 				float near = 0.1f;
 				float far = 50f;
 
@@ -454,7 +454,7 @@ public class PerspectiveScreen extends Screen {
 					glClear(GL_DEPTH_BUFFER_BIT);
 					// world.render(Shader.CUBE_DEPTH, cubemapCamera);
 					this.setShaderCameraUniforms(Shader.CUBE_DEPTH, cubemapCamera);
-					Shader.CUBE_DEPTH.enable();
+					Shader.CUBE_DEPTH.bind();
 					Model.renderModels(this.world_scene);
 				}
 
@@ -464,7 +464,7 @@ public class PerspectiveScreen extends Screen {
 				glDisable(GL_DEPTH_TEST);
 				glEnable(GL_BLEND);
 
-				Shader.LIGHTING.enable();
+				Shader.LIGHTING.bind();
 				Shader.LIGHTING.setUniform1f("shadowCubemapFar", far);
 
 				lights.get(i).bind(Shader.LIGHTING, i);
@@ -488,7 +488,7 @@ public class PerspectiveScreen extends Screen {
 
 			this.geometryPositionMap.bind(GL_TEXTURE4);
 
-			Shader.PARTICLE.enable();
+			Shader.PARTICLE.bind();
 			this.setCameraFOV(this.worldFOV);
 			this.setShaderCameraUniforms(Shader.PARTICLE, this.camera);
 			Model.renderModels(this.particle_scene);
@@ -498,7 +498,7 @@ public class PerspectiveScreen extends Screen {
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		Shader.SPLASH.enable();
+		Shader.SPLASH.bind();
 		Shader.SPLASH.setUniform1f("alpha", 1f);
 
 		if (this.renderSkybox) {

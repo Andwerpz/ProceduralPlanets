@@ -11,6 +11,8 @@ import util.Vec3;
 
 public class Shader {
 
+	public static boolean bindingEnabled = true;
+
 	public static Shader GEOMETRY, SKYBOX, LIGHTING, DEPTH, CUBE_DEPTH, GEOM_POST_PROCESS;
 	public static Shader IMG_POST_PROCESS, SPLASH, DECAL, RENDER_BUFFER, PARTICLE;
 
@@ -18,8 +20,10 @@ public class Shader {
 
 	private boolean enabled = false;
 
-	private final int ID;
+	private int ID;
 	private Map<String, Integer> locationCache = new HashMap<>();
+
+	private static int currentlyBoundShaderID;
 
 	public Shader(String vertex, String fragment) {
 		ID = ShaderUtils.load(vertex, fragment);
@@ -91,6 +95,10 @@ public class Shader {
 		Shader.PLANET_OCEAN.setUniform1i("tex_frag_dir", 2);
 	}
 
+	public int getID() {
+		return this.ID;
+	}
+
 	public int getUniform(String name) {
 		if (locationCache.containsKey(name)) {
 			return locationCache.get(name);
@@ -106,42 +114,60 @@ public class Shader {
 
 	public void setUniform1i(String name, int value) {
 		if (!enabled)
-			enable();
+			bind();
 		glUniform1i(getUniform(name), value);
 	}
 
 	public void setUniform1f(String name, float value) {
 		if (!enabled)
-			enable();
+			bind();
 		glUniform1f(getUniform(name), value);
 	}
 
 	public void setUniform2f(String name, float x, float y) {
 		if (!enabled)
-			enable();
+			bind();
 		glUniform2f(getUniform(name), x, y);
 	}
 
 	public void setUniform3f(String name, Vec3 v) {
 		if (!enabled)
-			enable();
+			bind();
 		glUniform3f(getUniform(name), v.x, v.y, v.z);
 	}
 
 	public void setUniformMat4(String name, Mat4 mat) {
 		if (!enabled)
-			enable();
+			bind();
 		glUniformMatrix4fv(getUniform(name), false, mat.toFloatBuffer());
 	}
 
-	public void enable() {
+	public void bind() {
+		if (!bindingEnabled) {
+			return;
+		}
+		if (currentlyBoundShaderID == this.ID) {
+			return;
+		}
+		currentlyBoundShaderID = this.ID;
 		glUseProgram(ID);
 		enabled = true;
 	}
 
-	public void disable() {
+	public void unbind() {
+		if (!bindingEnabled) {
+			return;
+		}
+		if (currentlyBoundShaderID == 0) {
+			return;
+		}
+		currentlyBoundShaderID = 0;
 		glUseProgram(0);
 		enabled = false;
+	}
+
+	public static int getCurrentlyBoundShaderID() {
+		return currentlyBoundShaderID;
 	}
 
 }
