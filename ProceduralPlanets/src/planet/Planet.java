@@ -18,7 +18,7 @@ public class Planet extends Model {
 	//needs to procedurally generate it's own mesh. 
 	//vertex coloring? needs it's own shader as well if not. 
 
-	private static int verticesPerEdge = 400;
+	private static int verticesPerEdge = 200;
 
 	public Planet() {
 		super();
@@ -178,16 +178,14 @@ public class Planet extends Model {
 
 			float elevation = (float) NoiseGenerator.noise(sampleVec.add(warpVec.mul(warpWeight)), 2, 1, 0.5, 2, 6);
 			elevation *= 2f;
-			//elevation = MathUtils.clamp(0, 10, elevation);
+
 			if (elevation < 0) {
-				//elevation = 0;
 				elevation *= 0.15f;
 			}
 			else {
 				elevation *= 0.1f;
 			}
 			elevation *= 0.8;
-			//totalHeight += elevation;
 
 			float cliffs = (float) NoiseGenerator.noise(v.x, v.y, v.z, 4, 1, 0.5, 2, 2);
 			cliffs = -Math.abs(cliffs) + 1;

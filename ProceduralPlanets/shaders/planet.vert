@@ -26,9 +26,12 @@ out float frag_material_shininess;
 
 out vec3 frag_colorID;
 
+out vec3 planet_pos;
+
 void main()
 {
     gl_Position = pr_matrix * vw_matrix * md_matrix * vec4(pos, 1.0);
+    planet_pos = vec3(md_matrix * vec4(0, 0, 0, 1));
     frag_pos = vec3(md_matrix * vec4(pos, 1.0));
     frag_uv = uv;
     frag_colorID = colorID;

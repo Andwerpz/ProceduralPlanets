@@ -10,6 +10,8 @@ in vec2 frag_uv;
 in vec3 frag_colorID;
 in mat3 TBN;
 
+in vec3 planet_pos;
+
 in vec4 frag_material_diffuse;
 in vec4 frag_material_specular;
 in float frag_material_shininess;
@@ -75,6 +77,21 @@ vec4 scaleWithMaterial(vec4 color, vec4 material) {
 	return ans;
 }
 
+vec3 blendColors(vec3 minColor, vec3 maxColor, float min, float max, float x) {
+	if(x < min) {
+		return minColor;
+	}
+	else if(x > max) {
+		return maxColor;
+	}
+	float minWeight = (max - x) / (max - min);
+	float maxWeight = (x - min) / (max - min);
+	float r = minColor.r * minWeight + maxColor.r * maxWeight;
+	float g = minColor.g * minWeight + maxColor.g * maxWeight;
+	float b = minColor.b * minWeight + maxColor.b * maxWeight;
+	return vec3(r, g, b);
+}
+
 void main()
 {
 	mat3 invTBN = transpose(TBN);
@@ -98,12 +115,45 @@ void main()
 	
 	if(fragColor.w == 0.0){	//alpha = 0
     	discard;
-    }
+   	}
+   	
+   	float planet_radius = 10;
+   	float elevation = length(planet_pos - frag_pos) - planet_radius;
+   	
+   	vec3 sandColor = vec3(242, 210, 169) / 255.0;
+   	vec3 grassColor = vec3(37, 135, 7) / 255.0;
+   	vec3 dirtColor = vec3(118, 85, 43) / 255.0;
+   	vec3 snowColor = vec3(255, 250, 250) / 255.0;
+   	
+   	vec3 blendedColor = vec3(0);
+   	
+   	float sandElevation = 0;
+   	float grassElevation = 0.2;
+   	float dirtElevation = 0.7;
+   	float snowElevation = 1;
+   	
+   	float elevationBandSpread = 0.1;
+   	
+   	if(elevation < sandElevation) {
+   		blendedColor = sandColor;
+   	}
+   	else if(elevation < grassElevation) {
+   		blendedColor = blendColors(sandColor, grassColor, sandElevation, grassElevation, elevation);
+   	}
+   	else if(elevation < dirtElevation) {
+   		blendedColor = blendColors(grassColor, dirtColor, grassElevation, dirtElevation, elevation);
+   	}
+   	else if(elevation < snowElevation) {
+   		blendedColor = blendColors(dirtColor, snowColor, dirtElevation, snowElevation, elevation);
+   	}
+   	else {
+   		blendedColor = snowColor;
+   	}
 	
-    gColor.rgba = scaleWithMaterial(texture(tex_diffuse, texCoords).rgba, frag_material_diffuse.rgba).rgba;
+    gColor.rgba = vec4(blendedColor, 1);
     gPosition.rgb = frag_pos;
     gPosition.a = gl_FragCoord.z;
-    gSpecular.rgb = scaleWithMaterial(texture(tex_specular, texCoords).rgba, frag_material_specular.rgba).rgb;
+    gSpecular.rgb = vec3(0.1, 0.1, 0.1);
     gSpecular.a = frag_material_shininess;
     gNormal.rgb = normalize(normal);
     gColorID = vec4(frag_colorID / 255, 1);
