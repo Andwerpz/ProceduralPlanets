@@ -157,13 +157,26 @@ public class Planet extends Model {
 
 		NoiseGenerator.randomizeNoise();
 
+		Vec3 xWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
+		Vec3 yWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
+		Vec3 zWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
+
+		float warpFreq = 1;
+		float warpWeight = 0.25f;
+
 		//map cube to sphere
 		for (Vec3 v : vertices) {
 			v.normalize();
 
 			float totalHeight = 0;
 
-			float elevation = (float) NoiseGenerator.noise(v.x, v.y, v.z, 2, 1, 0.5, 2, 6);
+			Vec3 sampleVec = new Vec3(v);
+			Vec3 warpVec = new Vec3(0);
+			warpVec.x = (float) NoiseGenerator.noise(sampleVec.add(xWarpOffset), warpFreq, 1, 0.5, 2, 1);
+			warpVec.y = (float) NoiseGenerator.noise(sampleVec.add(yWarpOffset), warpFreq, 1, 0.5, 2, 1);
+			warpVec.z = (float) NoiseGenerator.noise(sampleVec.add(zWarpOffset), warpFreq, 1, 0.5, 2, 1);
+
+			float elevation = (float) NoiseGenerator.noise(sampleVec.add(warpVec.mul(warpWeight)), 2, 1, 0.5, 2, 6);
 			elevation *= 2f;
 			//elevation = MathUtils.clamp(0, 10, elevation);
 			if (elevation < 0) {

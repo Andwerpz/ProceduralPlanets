@@ -224,9 +224,9 @@ public class PerspectiveScreen extends Screen {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Texture.bindingEnabled = true;
 
-		Shader.GEOMETRY.bind();
+		Shader.PLANET.bind();
 		this.setCameraFOV(this.worldFOV);
-		this.setShaderCameraUniforms(Shader.GEOMETRY, this.camera);
+		this.setShaderCameraUniforms(Shader.PLANET, this.camera);
 		Model.renderModels(this.world_scene);
 
 		// -- DECALS -- : screen space decals

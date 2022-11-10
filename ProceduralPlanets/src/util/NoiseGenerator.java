@@ -32,6 +32,14 @@ public class NoiseGenerator {
 		return noise(x, y, 0, frequency, amplitude, persistence, lacunarity, octaves);
 	}
 
+	public static double noise(double x, double frequency, double amplitude, double persistence, double lacunarity, int octaves) {
+		return noise(x, 0, 0, frequency, amplitude, persistence, lacunarity, octaves);
+	}
+
+	public static double noise(Vec3 v, double frequency, double amplitude, double persistence, double lacunarity, int octaves) {
+		return noise(v.x, v.y, v.z, frequency, amplitude, persistence, lacunarity, octaves);
+	}
+
 	private static double _noise(double x, double y, double z) {
 		int X = (int) Math.floor(x) & 255, // FIND UNIT CUBE THAT
 				Y = (int) Math.floor(y) & 255, // CONTAINS POINT.
