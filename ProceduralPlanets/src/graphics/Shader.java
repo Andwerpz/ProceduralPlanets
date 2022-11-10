@@ -12,8 +12,9 @@ import util.Vec3;
 public class Shader {
 
 	public static Shader GEOMETRY, SKYBOX, LIGHTING, DEPTH, CUBE_DEPTH, GEOM_POST_PROCESS;
-	public static Shader IMG_POST_PROCESS, SPLASH, OVERWRITE_ALPHA, DECAL, RENDER_BUFFER;
-	public static Shader PARTICLE;
+	public static Shader IMG_POST_PROCESS, SPLASH, DECAL, RENDER_BUFFER, PARTICLE;
+
+	public static Shader PLANET, PLANET_OCEAN;
 
 	private boolean enabled = false;
 
@@ -33,9 +34,11 @@ public class Shader {
 		GEOM_POST_PROCESS = new Shader("/geom_postprocessing.vert", "/geom_postprocessing.frag"); // post processing with geometry information
 		IMG_POST_PROCESS = new Shader("/img_postprocessing.vert", "/img_postprocessing.frag"); // post processing with only final color information
 		SPLASH = new Shader("/splash.vert", "/splash.frag"); // takes in a texture and alpha value.
-		OVERWRITE_ALPHA = new Shader("/splash.vert", "/overwrite_alpha.frag"); // uses the first textures color, and the second textures alpha.
 		DECAL = new Shader("/decal.vert", "/decal.frag");
 		PARTICLE = new Shader("/particle.vert", "/particle.frag");
+
+		PLANET = new Shader("/planet.vert", "/planet.frag");
+		PLANET_OCEAN = new Shader("/planet_oceans.vert", "/planet_oceans.frag");
 
 		Shader.GEOMETRY.setUniform1i("tex_diffuse", 0);
 		Shader.GEOMETRY.setUniform1i("tex_specular", 1);
@@ -62,10 +65,6 @@ public class Shader {
 
 		Shader.SPLASH.setUniform1i("tex_color", 0);
 
-		Shader.OVERWRITE_ALPHA.setUniform1i("tex_color", 0);
-		Shader.OVERWRITE_ALPHA.setUniform1i("tex_alpha", 1);
-		Shader.OVERWRITE_ALPHA.setUniform1f("alpha", 1f);
-
 		Shader.DECAL.setUniform1i("tex_diffuse", 0);
 		Shader.DECAL.setUniform1i("tex_specular", 1);
 		Shader.DECAL.setUniform1i("tex_normal", 2);
@@ -79,6 +78,17 @@ public class Shader {
 		Shader.PARTICLE.setUniform1i("tex_pos", 4);
 		Shader.PARTICLE.setUniform1i("enableParallaxMapping", 0);
 		Shader.PARTICLE.setUniform1i("enableTexScaling", 1);
+
+		Shader.PLANET.setUniform1i("tex_diffuse", 0);
+		Shader.PLANET.setUniform1i("tex_specular", 1);
+		Shader.PLANET.setUniform1i("tex_normal", 2);
+		Shader.PLANET.setUniform1i("tex_displacement", 3);
+		Shader.PLANET.setUniform1i("enableParallaxMapping", 0);
+		Shader.PLANET.setUniform1i("enableTexScaling", 1);
+
+		Shader.PLANET_OCEAN.setUniform1i("tex_position", 0);
+		Shader.PLANET_OCEAN.setUniform1i("tex_color", 1);
+		Shader.PLANET_OCEAN.setUniform1i("tex_frag_dir", 2);
 	}
 
 	public int getUniform(String name) {

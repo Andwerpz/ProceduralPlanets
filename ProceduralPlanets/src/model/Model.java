@@ -30,6 +30,7 @@ import org.lwjgl.assimp.AIVector3D;
 
 import graphics.TextureMaterial;
 import graphics.Material;
+import graphics.Shader;
 import graphics.Texture;
 import graphics.VertexArray;
 import util.FileUtils;
@@ -82,6 +83,9 @@ public class Model {
 	// created in init(), stores the same data that meshes stores, just all in
 	// triangles.
 	private ArrayList<CollisionMesh> collisionMeshes;
+
+	private boolean customShaderEnabled = false;
+	private Shader customShader;
 
 	public Model() {
 		this.meshes = new ArrayList<>();
@@ -547,7 +551,7 @@ public class Model {
 		}
 	}
 
-	private void render(int scene) {
+	protected void render(int scene) {
 		if (modelMats.get(scene) == null) { // check whether or not this model actually has any instances in the
 			// specified scene
 			return;

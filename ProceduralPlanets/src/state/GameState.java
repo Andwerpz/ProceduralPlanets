@@ -88,6 +88,8 @@ public class GameState extends State {
 	private boolean leftMouse = false;
 	private boolean rightMouse = false;
 
+	private Planet planet;
+
 	public GameState(StateManager sm) {
 		super(sm);
 	}
@@ -112,8 +114,8 @@ public class GameState extends State {
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("stars_skybox"));
 		player = new Player(new Vec3(0), WORLD_SCENE);
 
-		Planet p = new Planet(new Vec3(0), 5);
-		long planetID = Model.addInstance(p.getModel(), Mat4.translate(new Vec3(0, 0, -20)), WORLD_SCENE);
+		this.planet = new Planet(new Vec3(0), 10);
+		long planetID = Model.addInstance(planet.getModel(), Mat4.translate(new Vec3(0, 0, -20)), WORLD_SCENE);
 		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
 
 		// -- DECAL SCENE --
@@ -135,6 +137,12 @@ public class GameState extends State {
 		// -- PAUSE SCENE --
 		this.drawPauseMenu();
 
+	}
+
+	private void generatePlanet() {
+		this.planet.generate();
+		long planetID = Model.addInstance(planet.getModel(), Mat4.translate(new Vec3(0, 0, -20)), WORLD_SCENE);
+		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
 	}
 
 	private void togglePauseMenu() {
@@ -279,6 +287,10 @@ public class GameState extends State {
 		switch (key) {
 		case GLFW_KEY_ESCAPE:
 			this.togglePauseMenu();
+			break;
+
+		case GLFW_KEY_G:
+			this.generatePlanet();
 			break;
 		}
 	}

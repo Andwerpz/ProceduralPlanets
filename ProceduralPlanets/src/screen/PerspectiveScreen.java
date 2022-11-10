@@ -64,6 +64,7 @@ public class PerspectiveScreen extends Screen {
 	private Cubemap shadowCubemap; // R: depth
 
 	private Texture skyboxColorMap; // RGB: color
+	private Texture skyboxDirectionMap; // RGB: frag dir vector
 
 	private SkyboxCube skyboxCube;
 	private boolean renderSkybox = false;
@@ -131,8 +132,10 @@ public class PerspectiveScreen extends Screen {
 
 		this.skyboxBuffer = new Framebuffer(Main.windowWidth, Main.windowHeight);
 		this.skyboxColorMap = new Texture(GL_RGBA, Main.windowWidth, Main.windowHeight, GL_RGBA, GL_FLOAT);
+		this.skyboxDirectionMap = new Texture(GL_RGBA32F, Main.windowWidth, Main.windowHeight, GL_RGBA, GL_FLOAT);
 		this.skyboxBuffer.bindTextureToBuffer(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.skyboxColorMap.getID());
-		this.skyboxBuffer.setDrawBuffers(new int[] { GL_COLOR_ATTACHMENT0 });
+		this.skyboxBuffer.bindTextureToBuffer(GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this.skyboxDirectionMap.getID());
+		this.skyboxBuffer.setDrawBuffers(new int[] { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 });
 		this.skyboxBuffer.isComplete();
 
 		this.worldFOV = 90f;
@@ -269,6 +272,35 @@ public class PerspectiveScreen extends Screen {
 
 			this.setCameraFOV(this.worldFOV);
 		}
+
+		// -- SKYBOX -- : we'll use this texture in the post-processing step
+		skyboxBuffer.bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		Shader.SKYBOX.enable();
+		Shader.SKYBOX.setUniformMat4("vw_matrix", this.camera.getViewMatrix());
+		Shader.SKYBOX.setUniformMat4("pr_matrix", this.camera.getProjectionMatrix());
+		Scene.skyboxes.get(this.world_scene).bind(GL_TEXTURE0);
+		skyboxCube.render();
+
+		// -- PLANETARY OCEANS -- : render the oceans as spheres using a post processing effect
+		geometryBuffer.bind();
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glDisable(GL_BLEND);
+
+		Shader.PLANET_OCEAN.enable();
+		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
+		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -20));
+		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 10f);
+
+		this.geometryPositionMap.bind(GL_TEXTURE0);
+		this.geometryColorMap.bind(GL_TEXTURE1);
+		this.skyboxDirectionMap.bind(GL_TEXTURE2);
+
+		screenQuad.render();
 
 		// -- LIGHTING -- : using information from the geometry buffer, calculate lighting.
 		lightingBuffer.bind();
@@ -462,19 +494,6 @@ public class PerspectiveScreen extends Screen {
 			Model.renderModels(this.particle_scene);
 		}
 
-		// -- SKYBOX -- : we'll use this texture in the post-processing step
-		if (this.renderSkybox) {
-			skyboxBuffer.bind();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_BLEND);
-			Shader.SKYBOX.enable();
-			Shader.SKYBOX.setUniformMat4("vw_matrix", this.camera.getViewMatrix());
-			Shader.SKYBOX.setUniformMat4("pr_matrix", this.camera.getProjectionMatrix());
-			Scene.skyboxes.get(this.world_scene).bind(GL_TEXTURE0);
-			skyboxCube.render();
-		}
-
 		outputBuffer.bind();
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -488,6 +507,10 @@ public class PerspectiveScreen extends Screen {
 		}
 
 		this.lightingColorMap.bind(GL_TEXTURE0);
+		//		this.geometryNormalMap.bind(GL_TEXTURE0);
+		//		this.geometryPositionMap.bind(GL_TEXTURE0);
+		//		this.geometryColorMap.bind(GL_TEXTURE0);
+		//		this.skyboxDirectionMap.bind(GL_TEXTURE0);
 		screenQuad.render();
 	}
 

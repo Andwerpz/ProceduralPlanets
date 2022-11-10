@@ -31,8 +31,13 @@ public class Planet {
 		this.generate();
 	}
 
-	private void generate() {
+	public void generate() {
 		assert verticesPerEdge >= 2 : "Can't generate cube with less than 2 vertices per edge";
+
+		//get rid of old model if it exists
+		if (this.model != null) {
+			this.model.kill();
+		}
 
 		//generate cube vertices
 		ArrayList<Vec3> vertices = new ArrayList<>();
@@ -158,7 +163,15 @@ public class Planet {
 			float totalHeight = 0;
 
 			float elevation = (float) NoiseGenerator.noise(v.x, v.y, v.z, 2, 1, 0.5, 2, 6);
-			elevation = MathUtils.clamp(0, 10, elevation);
+			elevation *= 2f;
+			//elevation = MathUtils.clamp(0, 10, elevation);
+			if (elevation < 0) {
+				//elevation = 0;
+				elevation *= 0.15f;
+			}
+			else {
+				elevation *= 0.1f;
+			}
 			elevation *= 0.8;
 			//totalHeight += elevation;
 
@@ -167,10 +180,14 @@ public class Planet {
 			cliffs = (float) Math.pow(cliffs, 2);
 
 			//cliffs *= 2;
+			if (elevation > 0) {
+				totalHeight += cliffs * elevation;
+			}
+			else {
+				totalHeight += elevation;
+			}
 
-			totalHeight += cliffs * elevation;
-
-			v.setLength(this.radius + totalHeight);
+			v.setLength((1f + totalHeight) * this.radius);
 		}
 
 		//convert to vertex array
@@ -205,7 +222,6 @@ public class Planet {
 						indices.add(bl);
 						indices.add(tl);
 					}
-
 				}
 			}
 		}
