@@ -70,9 +70,11 @@ public class PerspectiveScreen extends Screen {
 	private boolean renderSkybox = false;
 
 	private boolean renderDecals = false;
+	
+	private static Texture oceanNormalMap = new Texture("water/water_normal.png");	//imported texture
 
 	public PerspectiveScreen() {
-
+		
 	}
 
 	@Override
@@ -293,12 +295,13 @@ public class PerspectiveScreen extends Screen {
 
 		Shader.PLANET_OCEAN.bind();
 		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -20));
+		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, -20, -20));
 		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 10f);
 
 		this.geometryPositionMap.bind(GL_TEXTURE0);
 		this.geometryColorMap.bind(GL_TEXTURE1);
 		this.skyboxDirectionMap.bind(GL_TEXTURE2);
+		oceanNormalMap.bind(GL_TEXTURE3);
 
 		screenQuad.render();
 

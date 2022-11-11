@@ -18,7 +18,7 @@ public class Planet extends Model {
 	//needs to procedurally generate it's own mesh. 
 	//vertex coloring? needs it's own shader as well if not. 
 
-	private static int verticesPerEdge = 200;
+	private static int verticesPerEdge = 20;
 
 	public Planet() {
 		super();

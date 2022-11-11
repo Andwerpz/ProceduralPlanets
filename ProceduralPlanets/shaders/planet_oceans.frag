@@ -9,7 +9,7 @@ uniform vec3 camera_pos;
 uniform sampler2D tex_position;
 uniform sampler2D tex_color;
 uniform sampler2D tex_frag_dir;
-uniform sampler2D tex_skybox_color;
+uniform sampler2D tex_normal_map;
 
 uniform vec3 planet_pos;
 uniform float planet_radius;
@@ -73,9 +73,6 @@ void main() {
 	
 	float waterDepth = length(camera_pos - frag_pos.rgb) - distToNear;
 	if(frag_color.a == 0) {
-		waterDepth = 100;	
-		//fragments on the edge of the sphere might register as a really low value leading to a bright lining
-		//if distToFar - distToNear is used.
 		waterDepth = distToFar - distToNear; 
 	}
 	
@@ -99,10 +96,31 @@ void main() {
 	vec3 blendedColor = mix(shallowWaterColor, deepWaterColor, opticalDepth);
 	blendedColor = mix(frag_color.rgb, blendedColor, waterAlpha);
 	
-	gColor.rgba = vec4(vec3(blendedColor), 1.0);
+	//compute normal via triplanar mapping
+	float xDot = abs(dot(vec3(-1, 0, 0), intersectPointNearNormal));
+	float yDot = abs(dot(vec3(0, -1, 0), intersectPointNearNormal));
+	float zDot = abs(dot(vec3(0, 0, -1), intersectPointNearNormal));
+	
+	float dotTotal = abs(xDot) + abs(yDot) + abs(zDot);
+	
+	float xDotWeight = xDot / dotTotal;
+	float yDotWeight = yDot / dotTotal;
+	float zDotWeight = zDot / dotTotal;
+	
+	float waterScale = 5;
+	
+	vec3 xNormal = texture(tex_normal_map, intersectPointNear.yz * waterScale).rgb;
+	vec3 yNormal = texture(tex_normal_map, intersectPointNear.xz * waterScale).rgb;
+	vec3 zNormal = texture(tex_normal_map, intersectPointNear.xy * waterScale).rgb;
+	
+	vec3 sampledNormal = xNormal * xDotWeight + yNormal * yDotWeight + zNormal * zDotWeight;
+	
+	blendedColor = vec3(xDotWeight, yDotWeight, zDotWeight);
+	
+	gColor.rgba = vec4(vec3(sampledNormal), 1.0);
 	gSpecular.rgb = vec3(1);
 	gSpecular.a = 64.0;
-	gNormal.rgb = intersectPointNearNormal.rgb;
+	gNormal.rgb = intersectPointNearNormal;
 	gPosition.rgb = intersectPointNear;
 	gPosition.a = 0.01;
 	

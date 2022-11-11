@@ -93,6 +93,7 @@ public class Shader {
 		Shader.PLANET_OCEAN.setUniform1i("tex_position", 0);
 		Shader.PLANET_OCEAN.setUniform1i("tex_color", 1);
 		Shader.PLANET_OCEAN.setUniform1i("tex_frag_dir", 2);
+		Shader.PLANET_OCEAN.setUniform1i("tex_normal_map", 3);
 	}
 
 	public int getID() {
