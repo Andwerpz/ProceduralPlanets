@@ -16,6 +16,8 @@ uniform float planet_radius;
 
 in vec2 frag_uv;
 
+const float PI = 3.14159265;
+
 vec3 blendColors(vec3 minColor, vec3 maxColor, float min, float max, float x) {
 	if(x < min) {
 		return minColor;
@@ -31,20 +33,28 @@ vec3 blendColors(vec3 minColor, vec3 maxColor, float min, float max, float x) {
 	return vec3(r, g, b);
 }
 
+float atan2(float x, float y) {
+	bool s = (abs(x) > abs(y));
+	return mix(PI / 2.0 - atan(x, y),  atan(y, x), s);
+}
+
+mat3 createXRotMatrix(float rad) {
+	return mat3(
+		1, 0, 0,
+		0, cos(rad), sin(rad),
+		0, -sin(rad), cos(rad)
+	);
+}
+
+mat3 createYRotMatrix(float rad) {
+	return mat3(
+		cos(rad), 0, -sin(rad),
+		0, 1, 0,
+		sin(rad), 0, cos(rad)
+	);
+}
+
 void main() {
-	
-	//problem is that we don't know the direction vectors of all fragments. 
-	//the problematic ones are the fragments that we don't render to. 
-	
-	//could just render a far plane, but that solution is really jank. 
-	//we can just sample the fragment direction from when we render the skybox
-	
-	//calculate the distance travelled through the sphere by the fragment ray
-	
-	//if it hits the terrain early, we can know by sampling the position map, then we update the distance accordingly. 
-	
-	//color of ocean is based off of intersection distance. 
-	
 	vec4 frag_color = texture(tex_color, frag_uv);
 	vec3 frag_dir = normalize(texture(tex_frag_dir, frag_uv).rgb);
 	vec4 frag_pos = texture(tex_position, frag_uv).rgba;
@@ -109,18 +119,27 @@ void main() {
 	
 	float waterScale = 5;
 	
-	vec3 xNormal = texture(tex_normal_map, intersectPointNear.yz * waterScale).rgb;
-	vec3 yNormal = texture(tex_normal_map, intersectPointNear.xz * waterScale).rgb;
-	vec3 zNormal = texture(tex_normal_map, intersectPointNear.xy * waterScale).rgb;
+	vec3 xNormal = texture(tex_normal_map, intersectPointNear.yz * waterScale).rgb * 2.0 - 1.0;
+	vec3 yNormal = texture(tex_normal_map, intersectPointNear.xz * waterScale).rgb * 2.0 - 1.0;
+	vec3 zNormal = texture(tex_normal_map, intersectPointNear.xy * waterScale).rgb * 2.0 - 1.0;
 	
 	vec3 sampledNormal = xNormal * xDotWeight + yNormal * yDotWeight + zNormal * zDotWeight;
 	
-	blendedColor = vec3(xDotWeight, yDotWeight, zDotWeight);
+	float surfNormYRot = atan2(intersectPointNearNormal.z, intersectPointNearNormal.x);
+	mat3 negYRotMat = createYRotMatrix(-surfNormYRot);
+	intersectPointNearNormal = negYRotMat * intersectPointNearNormal;
 	
-	gColor.rgba = vec4(vec3(sampledNormal), 1.0);
+	float surfNormXRot = atan2(intersectPointNearNormal.y, intersectPointNearNormal.z) - PI / 2.0;
+	mat3 negXRotMat = createXRotMatrix(-surfNormXRot);
+	intersectPointNearNormal = negXRotMat * intersectPointNearNormal;
+	
+	sampledNormal = transpose(negYRotMat) * transpose(negXRotMat) * sampledNormal;
+	sampledNormal = normalize(sampledNormal);
+	
+	gColor.rgba = vec4(vec3(blendedColor), 1.0);
 	gSpecular.rgb = vec3(1);
-	gSpecular.a = 64.0;
-	gNormal.rgb = intersectPointNearNormal;
+	gSpecular.a = 128.0;
+	gNormal.rgb = sampledNormal;
 	gPosition.rgb = intersectPointNear;
 	gPosition.a = 0.01;
 	
