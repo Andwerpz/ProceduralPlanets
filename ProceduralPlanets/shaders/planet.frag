@@ -153,7 +153,7 @@ void main()
    	if(elevation > 0) {
 	   	vec3 steepfaceColor = blendColors(dirtColor, stoneColor, dirtElevation, snowElevation, elevation);
 	   	float steepness = dot(normal, normalize(fromCenter));
-	   	blendedColor = blendColors(steepfaceColor, blendedColor, 0.6, 0.8, steepness);
+	   	blendedColor = blendColors(steepfaceColor, blendedColor, 0.7, 0.75, steepness);
    	}
 	
     gColor.rgba = vec4(blendedColor, 1);

@@ -88,16 +88,16 @@ void main() {
 		surfaceColor = vec3(1);
 	}
 	
+	float waterAlphaMultiplier = 6;
+	float waterDepthMultiplier = 2.1;
+	float opticalDepth = 1 - exp(-waterDepth * waterDepthMultiplier);
+	float waterAlpha = 1 - exp(-waterDepth * waterAlphaMultiplier);
+	
 	vec3 shallowWaterColor = vec3(133, 216, 229) / 255.0;
 	vec3 deepWaterColor = vec3(2, 75, 134) / 255.0;
 	
-	float shallowWaterDepth = 0.2;
-	float deepWaterDepth = 1;
-	
-	vec3 blendedColor = blendColors(surfaceColor, shallowWaterColor, -0.05, shallowWaterDepth, waterDepth);
-	if(waterDepth > shallowWaterDepth) {
-		blendedColor = blendColors(shallowWaterColor, deepWaterColor, shallowWaterDepth, deepWaterDepth, waterDepth);
-	}
+	vec3 blendedColor = mix(shallowWaterColor, deepWaterColor, opticalDepth);
+	blendedColor = mix(frag_color.rgb, blendedColor, waterAlpha);
 	
 	gColor.rgba = vec4(vec3(blendedColor), 1.0);
 	gSpecular.rgb = vec3(1);

@@ -123,16 +123,6 @@ public class GameState extends State {
 
 		// -- UI SCENE --
 		this.clearScene(UI_SCENE);
-		UIFilledRectangle crosshairRect1 = new UIFilledRectangle(0, 0, 0, 12, 2, UI_SCENE);
-		UIFilledRectangle crosshairRect2 = new UIFilledRectangle(0, 0, 0, 2, 12, UI_SCENE);
-		crosshairRect1.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		crosshairRect2.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		crosshairRect1.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
-		crosshairRect2.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
-
-		Material crosshairMaterial = new Material(new Vec4(0, 1, 0, 0.5f));
-		crosshairRect1.setMaterial(crosshairMaterial);
-		crosshairRect2.setMaterial(crosshairMaterial);
 
 		// -- PAUSE SCENE --
 		this.drawPauseMenu();
