@@ -162,7 +162,7 @@ public class Planet extends Model {
 		Vec3 zWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
 
 		float warpFreq = 1;
-		float warpWeight = 0.25f;
+		float warpWeight = 1f;
 
 		//map cube to sphere
 		for (Vec3 v : vertices) {

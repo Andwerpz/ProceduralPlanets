@@ -117,13 +117,15 @@ void main()
     	discard;
    	}
    	
+   	vec3 fromCenter = vec3(frag_pos - planet_pos);
    	float planet_radius = 10;
-   	float elevation = length(planet_pos - frag_pos) - planet_radius;
+   	float elevation = length(fromCenter) - planet_radius;
    	
    	vec3 sandColor = vec3(242, 210, 169) / 255.0;
    	vec3 grassColor = vec3(37, 135, 7) / 255.0;
    	vec3 dirtColor = vec3(118, 85, 43) / 255.0;
    	vec3 snowColor = vec3(255, 250, 250) / 255.0;
+   	vec3 stoneColor = vec3(145, 142, 133) / 255.0;
    	
    	vec3 blendedColor = vec3(0);
    	
@@ -131,8 +133,6 @@ void main()
    	float grassElevation = 0.2;
    	float dirtElevation = 0.7;
    	float snowElevation = 1;
-   	
-   	float elevationBandSpread = 0.1;
    	
    	if(elevation < sandElevation) {
    		blendedColor = sandColor;
@@ -148,6 +148,12 @@ void main()
    	}
    	else {
    		blendedColor = snowColor;
+   	}
+   	
+   	if(elevation > 0) {
+	   	vec3 steepfaceColor = blendColors(dirtColor, stoneColor, dirtElevation, snowElevation, elevation);
+	   	float steepness = dot(normal, normalize(fromCenter));
+	   	blendedColor = blendColors(steepfaceColor, blendedColor, 0.6, 0.8, steepness);
    	}
 	
     gColor.rgba = vec4(blendedColor, 1);

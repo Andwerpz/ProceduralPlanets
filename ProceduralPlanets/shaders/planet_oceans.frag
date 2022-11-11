@@ -101,7 +101,7 @@ void main() {
 	
 	gColor.rgba = vec4(vec3(blendedColor), 1.0);
 	gSpecular.rgb = vec3(1);
-	gSpecular.a = 64f;
+	gSpecular.a = 64.0;
 	gNormal.rgb = intersectPointNearNormal.rgb;
 	gPosition.rgb = intersectPointNear;
 	gPosition.a = 0.01;
