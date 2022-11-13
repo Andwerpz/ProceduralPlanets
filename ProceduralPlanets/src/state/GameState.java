@@ -114,9 +114,7 @@ public class GameState extends State {
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("stars_skybox"));
 		player = new Player(new Vec3(0), WORLD_SCENE);
 
-		this.planet = new Planet();
-		long planetID = this.planet.addInstance(new Vec3(0, 0, -20), 10, WORLD_SCENE);
-		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
+		this.generatePlanet();
 
 		// -- DECAL SCENE --
 		this.clearScene(DECAL_SCENE);
@@ -135,7 +133,7 @@ public class GameState extends State {
 		}
 
 		this.planet = new Planet();
-		long planetID = this.planet.addInstance(new Vec3(0, 0, -20), 10, WORLD_SCENE);
+		long planetID = this.planet.addInstance(new Vec3(0, 0, -30), 20, WORLD_SCENE);
 		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
 	}
 

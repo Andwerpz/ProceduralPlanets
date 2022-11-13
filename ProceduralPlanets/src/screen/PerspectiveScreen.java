@@ -295,8 +295,8 @@ public class PerspectiveScreen extends Screen {
 
 		Shader.PLANET_OCEAN.bind();
 		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -20));
-		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 10f);
+		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -30));
+		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 20f);
 
 		this.geometryPositionMap.bind(GL_TEXTURE0);
 		this.geometryColorMap.bind(GL_TEXTURE1);
