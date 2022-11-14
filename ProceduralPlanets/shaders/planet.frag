@@ -194,9 +194,12 @@ void main()
    	vec3 blendedColor = vec3(0);
    	
    	float sandElevation = 0;
-   	float grassElevation = 0.2;
-   	float dirtElevation = 0.7;
+   	float grassElevation = 0.1;
+   	float snowStartElevation = 0.7f;
    	float snowElevation = 1;
+   	
+   	float dirtCliffElevation = 0.7;
+   	float stoneCliffElevation = 0.9;
    	
    	if(elevation < sandElevation) {
    		blendedColor = sandColor;
@@ -204,18 +207,18 @@ void main()
    	else if(elevation < grassElevation) {
    		blendedColor = blendColors(sandColor, grassColor, sandElevation, grassElevation, elevation);
    	}
-   	else if(elevation < dirtElevation) {
-   		blendedColor = blendColors(grassColor, dirtColor, grassElevation, dirtElevation, elevation);
+   	else if(elevation < snowStartElevation) {
+   		blendedColor = grassColor;
    	}
    	else if(elevation < snowElevation) {
-   		blendedColor = blendColors(dirtColor, snowColor, dirtElevation, snowElevation, elevation);
+   		blendedColor = blendColors(grassColor, snowColor, snowStartElevation, snowElevation, elevation);
    	}
    	else {
    		blendedColor = snowColor;
    	}
    	
    	if(elevation > 0) {
-	   	vec3 steepfaceColor = blendColors(dirtColor, stoneColor, dirtElevation, snowElevation, elevation);
+	   	vec3 steepfaceColor = blendColors(dirtColor, stoneColor, dirtCliffElevation, stoneCliffElevation, elevation);
 	   	float steepness = dot(normal, normalize(fromCenter));
 	   	blendedColor = blendColors(steepfaceColor, blendedColor, 0.7, 0.75, steepness);
    	}
