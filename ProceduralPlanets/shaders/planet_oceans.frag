@@ -106,6 +106,10 @@ void main() {
 	vec3 blendedColor = mix(shallowWaterColor, deepWaterColor, opticalDepth);
 	blendedColor = mix(frag_color.rgb, blendedColor, waterAlpha);
 	
+	//if(waterDepth < 0.05) {
+	//	blendedColor = vec3(1);
+	//}
+	
 	//compute normal via triplanar mapping
 	float xDot = abs(dot(vec3(-1, 0, 0), intersectPointNearNormal));
 	float yDot = abs(dot(vec3(0, -1, 0), intersectPointNearNormal));

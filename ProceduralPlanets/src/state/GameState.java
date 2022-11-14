@@ -110,7 +110,7 @@ public class GameState extends State {
 
 		// -- WORLD SCENE --
 		this.clearScene(WORLD_SCENE);
-		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.5f), 0.3f));
+		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.5f), 0f));
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("stars_skybox"));
 		player = new Player(new Vec3(0), WORLD_SCENE);
 
@@ -218,10 +218,10 @@ public class GameState extends State {
 	@Override
 	public void render(Framebuffer outputBuffer) {
 		//world
-		perspectiveScreen.renderSkybox(true);
-		perspectiveScreen.renderDecals(true);
+		perspectiveScreen.renderSkybox(false);
+		perspectiveScreen.renderDecals(false);
 		perspectiveScreen.renderPlayermodel(false);
-		perspectiveScreen.renderParticles(true);
+		perspectiveScreen.renderParticles(false);
 		perspectiveScreen.setWorldScene(WORLD_SCENE);
 		perspectiveScreen.setDecalScene(DECAL_SCENE);
 		perspectiveScreen.setParticleScene(PARTICLE_SCENE);

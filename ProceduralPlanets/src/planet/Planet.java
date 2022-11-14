@@ -176,8 +176,12 @@ public class Planet extends Model {
 			warpVec.y = (float) NoiseGenerator.noise(sampleVec.add(yWarpOffset), warpFreq, 1, 0.5, 2, 1);
 			warpVec.z = (float) NoiseGenerator.noise(sampleVec.add(zWarpOffset), warpFreq, 1, 0.5, 2, 1);
 
-			float elevation = (float) NoiseGenerator.noise(sampleVec.add(warpVec.mul(warpWeight)), 2, 1, 0.5, 2, 6);
+			float elevation = (float) NoiseGenerator.noise(sampleVec.add(warpVec.mul(warpWeight)), 2, 1, 0.5, 2, 5);
 			elevation *= 2f;
+			if (elevation > 0) {
+				//elevation = (float) Math.sqrt(elevation);
+				elevation *= 0.5f;
+			}
 
 			if (elevation < 0) {
 				elevation *= 0.15f;
@@ -187,11 +191,11 @@ public class Planet extends Model {
 			}
 			elevation *= 0.8;
 
-			float cliffs = (float) NoiseGenerator.noise(v.x, v.y, v.z, 4, 1, 0.5, 2, 2);
+			float cliffs = (float) NoiseGenerator.noise(v.x, v.y, v.z, 2, 0.7f, 0.5, 2, 2);
 			cliffs = -Math.abs(cliffs) + 1;
-			cliffs = (float) Math.pow(cliffs, 2);
+			cliffs = (float) Math.pow(cliffs, 4);
 
-			//cliffs *= 2;
+			cliffs *= 2;
 			if (elevation > 0) {
 				totalHeight += cliffs * elevation;
 			}
