@@ -63,10 +63,6 @@ void main() {
 	vec3 cameraToSphere = planet_pos - camera_pos;
 	vec3 toClosestPoint = frag_dir * dot(frag_dir, cameraToSphere);
 	
-	if(dot(frag_dir, cameraToSphere) < 0) {
-		discard;
-	}
-	
 	float sphereRayDist = length(planet_pos - (camera_pos + toClosestPoint));
 	
 	if(sphereRayDist > planet_radius) {
@@ -74,19 +70,35 @@ void main() {
 	}
 	
 	float intersectDiskRadius = sqrt(planet_radius * planet_radius - sphereRayDist * sphereRayDist);
-	vec3 intersectPointNear = camera_pos + toClosestPoint - frag_dir * intersectDiskRadius;
-	vec3 intersectPointFar = camera_pos + toClosestPoint + frag_dir * intersectDiskRadius;
-	vec3 intersectPointNearNormal = normalize(intersectPointNear - planet_pos);
 	
-	float distToNear = length(camera_pos - intersectPointNear);
-	float distToFar = length(camera_pos - intersectPointFar);
+	vec3 toWaterNear = toClosestPoint - frag_dir * intersectDiskRadius;
+	vec3 toWaterFar = toClosestPoint + frag_dir * intersectDiskRadius;
 	
-	float waterDepth = length(camera_pos - frag_pos.rgb) - distToNear;
+	vec3 waterNear = camera_pos + toClosestPoint - frag_dir * intersectDiskRadius;
+	vec3 waterFar = camera_pos + toClosestPoint + frag_dir * intersectDiskRadius;
+	vec3 waterNormal = normalize(waterNear - planet_pos);
+	
+	float distToNear = dot(toWaterNear, frag_dir);
+	float distToFar = dot(toWaterFar, frag_dir);
+	float distToSurface = dot(frag_pos.rgb - camera_pos, frag_dir);
+	
+	//check if sphere is intersected behind the camera
+	if(distToNear < 0 && distToFar < 0) {
+		discard;
+	}
+	
+	float waterDepth = distToSurface - distToNear;
+	if(distToNear < 0) {	//inside looking out
+		waterDepth = distToSurface - distToFar;
+	}
 	if(frag_color.a == 0) {
 		waterDepth = distToFar - distToNear; 
 	}
+	else if(distToNear < 0) {
+		waterDepth = distToSurface;
+	}
 	
-	if(waterDepth < 0) {
+	if(waterDepth < 0){
 		discard;
 	}
 	
@@ -95,7 +107,7 @@ void main() {
 		surfaceColor = vec3(1);
 	}
 	
-	float waterAlphaMultiplier = 6;
+	float waterAlphaMultiplier = 3;
 	float waterDepthMultiplier = 2.1;
 	float opticalDepth = 1 - exp(-waterDepth * waterDepthMultiplier);
 	float waterAlpha = 1 - exp(-waterDepth * waterAlphaMultiplier);
@@ -106,14 +118,10 @@ void main() {
 	vec3 blendedColor = mix(shallowWaterColor, deepWaterColor, opticalDepth);
 	blendedColor = mix(frag_color.rgb, blendedColor, waterAlpha);
 	
-	//if(waterDepth < 0.05) {
-	//	blendedColor = vec3(1);
-	//}
-	
 	//compute normal via triplanar mapping
-	float xDot = abs(dot(vec3(-1, 0, 0), intersectPointNearNormal));
-	float yDot = abs(dot(vec3(0, -1, 0), intersectPointNearNormal));
-	float zDot = abs(dot(vec3(0, 0, -1), intersectPointNearNormal));
+	float xDot = abs(dot(vec3(-1, 0, 0), waterNormal));
+	float yDot = abs(dot(vec3(0, -1, 0), waterNormal));
+	float zDot = abs(dot(vec3(0, 0, -1), waterNormal));
 	
 	float dotTotal = abs(xDot) + abs(yDot) + abs(zDot);
 	
@@ -123,28 +131,32 @@ void main() {
 	
 	float waterScale = 5;
 	
-	vec3 xNormal = texture(tex_normal_map, intersectPointNear.yz * waterScale).rgb * 2.0 - 1.0;
-	vec3 yNormal = texture(tex_normal_map, intersectPointNear.xz * waterScale).rgb * 2.0 - 1.0;
-	vec3 zNormal = texture(tex_normal_map, intersectPointNear.xy * waterScale).rgb * 2.0 - 1.0;
+	vec3 xNormal = texture(tex_normal_map, waterNear.yz * waterScale).rgb * 2.0 - 1.0;
+	vec3 yNormal = texture(tex_normal_map, waterNear.xz * waterScale).rgb * 2.0 - 1.0;
+	vec3 zNormal = texture(tex_normal_map, waterNear.xy * waterScale).rgb * 2.0 - 1.0;
 	
 	vec3 sampledNormal = xNormal * xDotWeight + yNormal * yDotWeight + zNormal * zDotWeight;
 	
-	float surfNormYRot = atan2(intersectPointNearNormal.z, intersectPointNearNormal.x);
+	float surfNormYRot = atan2(waterNormal.z, waterNormal.x);
 	mat3 negYRotMat = createYRotMatrix(-surfNormYRot);
-	intersectPointNearNormal = negYRotMat * intersectPointNearNormal;
+	waterNormal = negYRotMat * waterNormal;
 	
-	float surfNormXRot = atan2(intersectPointNearNormal.y, intersectPointNearNormal.z) - PI / 2.0;
+	float surfNormXRot = atan2(waterNormal.y, waterNormal.z) - PI / 2.0;
 	mat3 negXRotMat = createXRotMatrix(-surfNormXRot);
-	intersectPointNearNormal = negXRotMat * intersectPointNearNormal;
+	waterNormal = negXRotMat * waterNormal;
 	
 	sampledNormal = transpose(negYRotMat) * transpose(negXRotMat) * sampledNormal;
 	sampledNormal = normalize(sampledNormal);
+	
+	if(distToNear < 0 && distToFar > 0){
+		sampledNormal = waterNormal;
+	}
 	
 	gColor.rgba = vec4(vec3(blendedColor), 1.0);
 	gSpecular.rgb = vec3(1);
 	gSpecular.a = 128.0;
 	gNormal.rgb = sampledNormal;
-	gPosition.rgb = intersectPointNear;
+	gPosition.rgb = waterNear;
 	gPosition.a = 0.01;
 	
 } 
