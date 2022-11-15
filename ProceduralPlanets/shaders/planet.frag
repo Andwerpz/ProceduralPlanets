@@ -187,7 +187,7 @@ void main()
    	
    	vec3 sandColor = vec3(242, 210, 169) / 255.0;
    	vec3 grassColor = (vec3(37, 135, 7) / 255.0) * (1.0 + simplex3d(frag_pos * 10) * 0.1 + simplex3d(frag_pos * 0.5) * 0.4);
-   	vec3 dirtColor = vec3(118, 85, 43) / 255.0;
+   	vec3 dirtColor = vec3(70, 46, 26) / 255.0;
    	vec3 snowColor = vec3(255, 250, 250) / 255.0;
    	vec3 stoneColor = vec3(145, 142, 133) / 255.0;
    	

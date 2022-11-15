@@ -497,6 +497,26 @@ public class PerspectiveScreen extends Screen {
 			Model.renderModels(this.particle_scene);
 		}
 
+		// -- PLANET ATMOSPHERE -- : render atmosphere with post processing effect. 
+		lightingBuffer.bind();
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+		Shader.PLANET_ATMOSPHERE.bind();
+		Shader.PLANET_ATMOSPHERE.setUniform3f("camera_pos", this.camera.getPos());
+		Shader.PLANET_ATMOSPHERE.setUniform3f("planet_pos", new Vec3(0, 0, -30));
+		Shader.PLANET_ATMOSPHERE.setUniform1f("planet_radius", 21f);
+
+		this.geometryPositionMap.bind(GL_TEXTURE0);
+		this.geometryColorMap.bind(GL_TEXTURE1);
+		this.skyboxDirectionMap.bind(GL_TEXTURE2);
+
+		screenQuad.render();
+
+		// -- RENDER TO OUTPUT --
 		outputBuffer.bind();
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -510,10 +530,11 @@ public class PerspectiveScreen extends Screen {
 		}
 
 		this.lightingColorMap.bind(GL_TEXTURE0);
-		//		this.geometryNormalMap.bind(GL_TEXTURE0);
-		//		this.geometryPositionMap.bind(GL_TEXTURE0);
-		//		this.geometryColorMap.bind(GL_TEXTURE0);
-		//		this.skyboxDirectionMap.bind(GL_TEXTURE0);
+		//this.geometryNormalMap.bind(GL_TEXTURE0);
+		//this.geometryPositionMap.bind(GL_TEXTURE0);
+		//this.geometryColorMap.bind(GL_TEXTURE0);
+		//this.skyboxDirectionMap.bind(GL_TEXTURE0);
+		//this.lightingBrightnessMap.bind(GL_TEXTURE0);
 		screenQuad.render();
 	}
 

@@ -16,7 +16,7 @@ public class Shader {
 	public static Shader GEOMETRY, SKYBOX, LIGHTING, DEPTH, CUBE_DEPTH, GEOM_POST_PROCESS;
 	public static Shader IMG_POST_PROCESS, SPLASH, DECAL, RENDER_BUFFER, PARTICLE;
 
-	public static Shader PLANET, PLANET_OCEAN;
+	public static Shader PLANET, PLANET_OCEAN, PLANET_ATMOSPHERE;
 
 	private boolean enabled = false;
 
@@ -43,6 +43,7 @@ public class Shader {
 
 		PLANET = new Shader("/planet.vert", "/planet.frag");
 		PLANET_OCEAN = new Shader("/planet_oceans.vert", "/planet_oceans.frag");
+		PLANET_ATMOSPHERE = new Shader("/planet_atmosphere.vert", "/planet_atmosphere.frag");
 
 		Shader.GEOMETRY.setUniform1i("tex_diffuse", 0);
 		Shader.GEOMETRY.setUniform1i("tex_specular", 1);
@@ -94,6 +95,10 @@ public class Shader {
 		Shader.PLANET_OCEAN.setUniform1i("tex_color", 1);
 		Shader.PLANET_OCEAN.setUniform1i("tex_frag_dir", 2);
 		Shader.PLANET_OCEAN.setUniform1i("tex_normal_map", 3);
+
+		Shader.PLANET_ATMOSPHERE.setUniform1i("tex_position", 0);
+		Shader.PLANET_ATMOSPHERE.setUniform1i("tex_color", 1);
+		Shader.PLANET_ATMOSPHERE.setUniform1i("tex_frag_dir", 2);
 	}
 
 	public int getID() {

@@ -1,15 +1,11 @@
 #version 330 core
-layout (location = 0) out vec4 gPosition;
-layout (location = 1) out vec4 gNormal;
-layout (location = 2) out vec4 gSpecular;
-layout (location = 3) out vec4 gColor;
+layout (location = 0) out vec4 lColor;
 
 uniform vec3 camera_pos;
 
 uniform sampler2D tex_position;
 uniform sampler2D tex_color;
 uniform sampler2D tex_frag_dir;
-uniform sampler2D tex_normal_map;
 
 uniform vec3 planet_pos;
 uniform float planet_radius;
@@ -96,66 +92,11 @@ void main() {
 		waterDepth = distToSurface - distToNear;
 	}
 	
+	
 	if(waterDepth < 0){
 		discard;
 	}
 	
-	vec3 surfaceColor = frag_color.rgb;
-	if(frag_color.a == 0) {
-		surfaceColor = vec3(1);
-	}
-	
-	float waterAlphaMultiplier = 3;
-	float waterDepthMultiplier = 2.1;
-	float opticalDepth = 1 - exp(-waterDepth * waterDepthMultiplier);
-	float waterAlpha = 1 - exp(-waterDepth * waterAlphaMultiplier);
-	
-	vec3 shallowWaterColor = vec3(133, 216, 229) / 255.0;
-	vec3 deepWaterColor = vec3(2, 75, 134) / 255.0;
-	
-	vec3 blendedColor = mix(shallowWaterColor, deepWaterColor, opticalDepth);
-	blendedColor = mix(frag_color.rgb, blendedColor, waterAlpha);
-	
-	//compute normal via triplanar mapping
-	float xDot = abs(dot(vec3(-1, 0, 0), waterNormal));
-	float yDot = abs(dot(vec3(0, -1, 0), waterNormal));
-	float zDot = abs(dot(vec3(0, 0, -1), waterNormal));
-	
-	float dotTotal = abs(xDot) + abs(yDot) + abs(zDot);
-	
-	float xDotWeight = xDot / dotTotal;
-	float yDotWeight = yDot / dotTotal;
-	float zDotWeight = zDot / dotTotal;
-	
-	float waterScale = 5;
-	
-	vec3 xNormal = texture(tex_normal_map, waterNear.yz * waterScale).rgb * 2.0 - 1.0;
-	vec3 yNormal = texture(tex_normal_map, waterNear.xz * waterScale).rgb * 2.0 - 1.0;
-	vec3 zNormal = texture(tex_normal_map, waterNear.xy * waterScale).rgb * 2.0 - 1.0;
-	
-	vec3 sampledNormal = xNormal * xDotWeight + yNormal * yDotWeight + zNormal * zDotWeight;
-	
-	float surfNormYRot = atan2(waterNormal.z, waterNormal.x);
-	mat3 negYRotMat = createYRotMatrix(-surfNormYRot);
-	waterNormal = negYRotMat * waterNormal;
-	
-	float surfNormXRot = atan2(waterNormal.y, waterNormal.z) - PI / 2.0;
-	mat3 negXRotMat = createXRotMatrix(-surfNormXRot);
-	waterNormal = negXRotMat * waterNormal;
-	
-	sampledNormal = transpose(negYRotMat) * transpose(negXRotMat) * sampledNormal;
-	sampledNormal = normalize(sampledNormal);
-	
-	if(distToNear <= 0 && distToFar > 0){
-		sampledNormal = waterNormal;
-	}
-	
-	gColor.rgba = vec4(vec3(blendedColor), 1.0);
-	gSpecular.rgb = vec3(1);
-	gSpecular.a = 128.0;
-	gNormal.rgb = sampledNormal;
-	gPosition.rgb = waterNear;
-	gPosition.a = 0.01;
-	
+	lColor.rgba = vec4(vec3(1), 1.0 - (1.0 / (waterDepth * 0.1 + 1)));
 } 
 

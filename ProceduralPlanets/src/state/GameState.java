@@ -110,7 +110,7 @@ public class GameState extends State {
 
 		// -- WORLD SCENE --
 		this.clearScene(WORLD_SCENE);
-		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.5f), 0f));
+		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.8f), 0f));
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("stars_skybox"));
 		player = new Player(new Vec3(0), WORLD_SCENE);
 
