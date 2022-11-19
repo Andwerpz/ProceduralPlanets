@@ -135,6 +135,8 @@ void main() {
 	
 	vec3 sampledNormal = xNormal * xDotWeight + yNormal * yDotWeight + zNormal * zDotWeight;
 	
+	vec3 waterNormal2 = waterNormal;
+	
 	float surfNormYRot = atan2(waterNormal.z, waterNormal.x);
 	mat3 negYRotMat = createYRotMatrix(-surfNormYRot);
 	waterNormal = negYRotMat * waterNormal;

@@ -55,6 +55,7 @@ import util.FontUtils;
 import util.Mat4;
 import util.MathUtils;
 import util.NetworkingUtils;
+import util.NoiseGenerator;
 import util.Pair;
 import util.Vec3;
 import util.Vec4;
@@ -134,8 +135,9 @@ public class GameState extends State {
 		}
 
 		this.planet = new Planet();
-		long planetID = this.planet.addInstance(new Vec3(0, 0, -this.planetRadius - 30f), this.planetRadius, WORLD_SCENE);
+		long planetID = this.planet.addInstance(new Vec3(0, 0, 0), this.planetRadius, WORLD_SCENE);
 		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
+		NoiseGenerator.randomizeNoise();
 	}
 
 	private void togglePauseMenu() {
@@ -161,25 +163,9 @@ public class GameState extends State {
 
 		// -- DYNAMIC --
 		this.clearScene(PAUSE_SCENE_DYNAMIC);
-		Button setNicknameButton = new Button(5, -40, 145, 30, "btn_set_nickname", "Set Nick", FontUtils.CSGOFont, 32, PAUSE_SCENE_DYNAMIC);
-		setNicknameButton.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		setNicknameButton.setContentAlignmentStyle(UIElement.ALIGN_RIGHT, UIElement.ALIGN_CENTER);
-
-		TextField setNicknameTextField = new TextField(5, -40, 145, 30, "tf_set_nickname", "Nickname", new Font("Dialogue", Font.PLAIN, 1), 16, PAUSE_SCENE_DYNAMIC);
-		setNicknameTextField.setFrameAlignmentStyle(UIElement.FROM_CENTER_RIGHT, UIElement.FROM_CENTER_BOTTOM);
-		setNicknameTextField.setContentAlignmentStyle(UIElement.ALIGN_LEFT, UIElement.ALIGN_CENTER);
-
-		Button returnToMenu = new Button(0, 0, 300, 30, "btn_return_to_menu", "Return to Menu", FontUtils.CSGOFont, 32, PAUSE_SCENE_DYNAMIC);
-		returnToMenu.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		returnToMenu.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
-
-		Button togglePlayermodelSide = new Button(0, 40, 300, 30, "btn_toggle_playermodel_side", "Toggle Handedness", FontUtils.CSGOFont, 32, PAUSE_SCENE_DYNAMIC);
-		togglePlayermodelSide.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		togglePlayermodelSide.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
-
-		Button respawn = new Button(0, 80, 300, 30, "btn_respawn", "Respawn", FontUtils.CSGOFont, 32, PAUSE_SCENE_DYNAMIC);
-		respawn.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
-		respawn.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
+		Text pausedText = new Text(0, 0, "Paused", FontUtils.segoe_ui, 32, Color.WHITE, PAUSE_SCENE_DYNAMIC);
+		pausedText.setFrameAlignmentStyle(UIElement.FROM_CENTER_LEFT, UIElement.FROM_CENTER_BOTTOM);
+		pausedText.setContentAlignmentStyle(UIElement.ALIGN_CENTER, UIElement.ALIGN_CENTER);
 	}
 
 	private void enablePlayerControls() {

@@ -155,13 +155,11 @@ public class Planet extends Model {
 			v.addi(translate);
 		}
 
-		NoiseGenerator.randomizeNoise();
-
 		Vec3 xWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
 		Vec3 yWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
 		Vec3 zWarpOffset = new Vec3((float) Math.random(), (float) Math.random(), (float) Math.random());
 
-		float warpFreq = 1;
+		float warpFreq = 1f;
 		float warpWeight = 1f;
 
 		//map cube to sphere

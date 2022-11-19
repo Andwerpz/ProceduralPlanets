@@ -221,7 +221,7 @@ void main()
    	float steepness = dot(normal, normalize(fromCenter));
    	blendedColor = blendColors(steepfaceColor, blendedColor, 0.7, 0.75, steepness);
 	
-    gColor.rgba = vec4(blendedColor, 1);
+    gColor.rgba = vec4(vec3(blendedColor), 1);
     gPosition.rgb = frag_pos;
     gPosition.a = gl_FragCoord.z;
     gSpecular.rgb = vec3(0.1, 0.1, 0.1);

@@ -302,7 +302,7 @@ public class PerspectiveScreen extends Screen {
 
 		Shader.PLANET_OCEAN.bind();
 		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -this.planetRadius - 30f));
+		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, 0));
 		Shader.PLANET_OCEAN.setUniform1f("planet_radius", this.planetRadius);
 
 		this.geometryPositionMap.bind(GL_TEXTURE0);
@@ -520,9 +520,9 @@ public class PerspectiveScreen extends Screen {
 		this.lightingColorMap.bind(GL_TEXTURE0);
 		//this.geometryNormalMap.bind(GL_TEXTURE0);
 		//this.geometryPositionMap.bind(GL_TEXTURE0);
-		this.geometryColorMap.bind(GL_TEXTURE0);
+		//this.geometryColorMap.bind(GL_TEXTURE0);
 		//this.skyboxDirectionMap.bind(GL_TEXTURE0);
-		this.lightingBrightnessMap.bind(GL_TEXTURE0);
+		//this.lightingBrightnessMap.bind(GL_TEXTURE0);
 		screenQuad.render();
 
 		// -- PLANET ATMOSPHERE -- : render atmosphere with post processing effect. 
@@ -534,7 +534,7 @@ public class PerspectiveScreen extends Screen {
 
 		Shader.PLANET_ATMOSPHERE.bind();
 		Shader.PLANET_ATMOSPHERE.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_ATMOSPHERE.setUniform3f("planet_pos", new Vec3(0, 0, -this.planetRadius - 30f));
+		Shader.PLANET_ATMOSPHERE.setUniform3f("planet_pos", new Vec3(0, 0, 0));
 		Shader.PLANET_ATMOSPHERE.setUniform1f("planet_radius", this.planetRadius);
 		Shader.PLANET_ATMOSPHERE.setUniform1f("atmosphere_radius", this.planetRadius * this.atmosphereRadiusMultiplier);
 		Shader.PLANET_ATMOSPHERE.setUniform3f("sunLightDir", new Vec3(0.3f, -1f, -0.5f).normalize());

@@ -99,7 +99,7 @@ public class Player extends Entity {
 		camXRot = MathUtils.clamp((float) -(Math.PI - 0.01) / 2f, (float) (Math.PI - 0.01) / 2f, camXRot);
 
 		// TRANSLATION
-		move_noclip();
+		move_focusPoint();
 	}
 
 	public void setPos(Vec3 v) {
@@ -108,6 +108,29 @@ public class Player extends Entity {
 
 	public void setVel(Vec3 v) {
 		this.vel = new Vec3(v);
+	}
+
+	//rotates the player facing a point
+	private Vec3 focusPoint = new Vec3(0);
+	private float focusDist = 40f;
+
+	private void move_focusPoint() {
+		this.vel.setLength(0);
+
+		Vec3 offsetVec = new Vec3(0, 0, focusDist);
+		offsetVec.rotateX(this.camXRot);
+		offsetVec.rotateY(this.camYRot);
+
+		this.pos.set(this.focusPoint.add(offsetVec));
+
+		if (this.acceptPlayerInputs) {
+			if (KeyboardInput.isKeyPressed(GLFW_KEY_W)) {
+				this.focusDist -= 0.1;
+			}
+			if (KeyboardInput.isKeyPressed(GLFW_KEY_S)) {
+				this.focusDist += 0.1;
+			}
+		}
 	}
 
 	// ignores all collision
