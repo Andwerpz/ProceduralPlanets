@@ -89,6 +89,7 @@ public class GameState extends State {
 	private boolean rightMouse = false;
 
 	private Planet planet;
+	private float planetRadius = 20f;
 
 	public GameState(StateManager sm) {
 		super(sm);
@@ -133,7 +134,7 @@ public class GameState extends State {
 		}
 
 		this.planet = new Planet();
-		long planetID = this.planet.addInstance(new Vec3(0, 0, -30), 20, WORLD_SCENE);
+		long planetID = this.planet.addInstance(new Vec3(0, 0, -this.planetRadius - 30f), this.planetRadius, WORLD_SCENE);
 		Model.updateInstance(planetID, new Material(new Vec3(1), new Vec3(1), 8f));
 	}
 
@@ -225,6 +226,7 @@ public class GameState extends State {
 		perspectiveScreen.setWorldScene(WORLD_SCENE);
 		perspectiveScreen.setDecalScene(DECAL_SCENE);
 		perspectiveScreen.setParticleScene(PARTICLE_SCENE);
+		perspectiveScreen.setPlanetRadius(this.planetRadius);
 		perspectiveScreen.render(outputBuffer);
 
 		//ui

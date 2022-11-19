@@ -1,14 +1,16 @@
 #version 330 core
 layout (location = 0) out vec4 lColor;
 
-uniform vec3 camera_pos;
-
 uniform sampler2D tex_position;
 uniform sampler2D tex_color;
 uniform sampler2D tex_frag_dir;
 
+uniform vec3 camera_pos;
 uniform vec3 planet_pos;
 uniform float planet_radius;
+uniform float atmosphere_radius;
+
+uniform vec3 sunLightDir;
 
 in vec2 frag_uv;
 
@@ -50,6 +52,85 @@ mat3 createYRotMatrix(float rad) {
 	);
 }
 
+//returns the length of intersection between a ray and a sphere
+float raySphereLength(vec3 rayOrigin, vec3 rayDir, vec3 spherePos, float sphereRadius) {
+	vec3 rayToSphere = spherePos - rayOrigin;
+	vec3 toClosestPoint = rayDir * dot(rayDir, rayToSphere);
+	float sphereRayDist = length(spherePos - (rayOrigin + toClosestPoint));
+	
+	if(sphereRayDist > sphereRadius){
+		//they don't intersect
+		return 0;
+	}	
+	
+	float intersectionDistRadius = sqrt(sphereRadius * sphereRadius - sphereRayDist * sphereRayDist);
+	
+	vec3 toNear = toClosestPoint - rayDir * intersectionDistRadius;
+	vec3 toFar = toClosestPoint + rayDir * intersectionDistRadius;
+	
+	float distToNear = dot(toNear, rayDir);
+	float distToFar = dot(toFar, rayDir);
+	
+	distToNear = max(distToNear, 0);
+	distToFar = max(distToFar, 0);
+	
+	return distToFar - distToNear;
+}
+
+const float densityFalloff = 10;
+
+float densityAtPoint(vec3 densitySamplePoint) {
+	float heightAboveSurface = length(densitySamplePoint - planet_pos) - planet_radius;
+	float height01 = heightAboveSurface / (atmosphere_radius - planet_radius);
+	float localDensity = exp(-height01 * densityFalloff) * (1.0 - height01);
+	return localDensity;
+}
+
+const int numOpticalDepthPoints = 10;
+
+float opticalDepth(vec3 rayOrigin, vec3 rayDir, float rayLength) {
+	vec3 densitySamplePoint = rayOrigin;
+	float stepSize = rayLength / (numOpticalDepthPoints - 1);
+	float opticalDepth = 0;
+	for(int i = 0; i < numOpticalDepthPoints; i++){
+		float localDensity = densityAtPoint(densitySamplePoint);
+		opticalDepth += localDensity * stepSize;
+		densitySamplePoint += rayDir * stepSize;
+	}
+	return opticalDepth;
+}
+
+const int numInScatteringPoints = 10;
+
+const float scatteringStrength = 20;
+const float scatteringBase = 400.0;
+const float scatterR = pow(scatteringBase / 700, 4) * scatteringStrength;
+const float scatterG = pow(scatteringBase / 530, 4) * scatteringStrength;
+const float scatterB = pow(scatteringBase / 460, 4) * scatteringStrength;
+const vec3 scatteringCoefficients = vec3(scatterR, scatterG, scatterB);
+
+vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalCol) {
+	rayDir = normalize(rayDir);
+	vec3 inScatterPoint = rayOrigin;
+	float stepSize = rayLength / (numInScatteringPoints - 1);
+	vec3 inScatteredLight = vec3(0);
+	float viewRayOpticalDepth = 0;
+	
+	for(int i = 0; i < numInScatteringPoints; i++){
+		float sunRayLength = raySphereLength(inScatterPoint, -sunLightDir, planet_pos, atmosphere_radius);
+		float sunRayOpticalDepth = opticalDepth(inScatterPoint, -sunLightDir, sunRayLength);
+		viewRayOpticalDepth = opticalDepth(rayOrigin, rayDir, stepSize * i);
+		vec3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatteringCoefficients);
+		float localDensity = densityAtPoint(inScatterPoint);
+		 
+		inScatteredLight += localDensity * transmittance * stepSize * scatteringCoefficients;
+		inScatterPoint += rayDir * stepSize;
+	}
+	
+	float originalColTransmittance = exp(-viewRayOpticalDepth);
+	return originalCol * originalColTransmittance + inScatteredLight;
+}
+
 void main() {
 	vec4 frag_color = texture(tex_color, frag_uv);
 	vec3 frag_dir = normalize(texture(tex_frag_dir, frag_uv).rgb);
@@ -61,11 +142,11 @@ void main() {
 	
 	float sphereRayDist = length(planet_pos - (camera_pos + toClosestPoint));
 	
-	if(sphereRayDist > planet_radius) {
+	if(sphereRayDist > atmosphere_radius) {
 		discard;
 	}
 	
-	float intersectDiskRadius = sqrt(planet_radius * planet_radius - sphereRayDist * sphereRayDist);
+	float intersectDiskRadius = sqrt(atmosphere_radius * atmosphere_radius - sphereRayDist * sphereRayDist);
 	
 	vec3 toWaterNear = toClosestPoint - frag_dir * intersectDiskRadius;
 	vec3 toWaterFar = toClosestPoint + frag_dir * intersectDiskRadius;
@@ -84,19 +165,19 @@ void main() {
 	}
 	
 	distToNear = max(distToNear, 0);	//clamp near dist to camera, it usually can be behind the camera
-	float waterDepth = 0;
-	if(frag_color.a == 0) {
-		waterDepth = distToFar - distToNear; 
-	}
-	else {
-		waterDepth = distToSurface - distToNear;
+	distToFar = max(distToFar, 0);
+	
+	float atmosphereDepth = raySphereLength(camera_pos, frag_dir, planet_pos, atmosphere_radius);
+	if(frag_color.a != 0) {
+		atmosphereDepth = distToSurface - distToNear;
 	}
 	
-	
-	if(waterDepth < 0){
+	if(atmosphereDepth < 0){
 		discard;
 	}
 	
-	lColor.rgba = vec4(vec3(1), 1.0 - (1.0 / (waterDepth * 0.1 + 1)));
+	float epsilon = 0.0001;
+	lColor.rgb = calculateLight(camera_pos + frag_dir * (distToNear + epsilon), frag_dir, atmosphereDepth - 2 * epsilon, frag_color.rgb);
+	lColor.a = 1;
 } 
 

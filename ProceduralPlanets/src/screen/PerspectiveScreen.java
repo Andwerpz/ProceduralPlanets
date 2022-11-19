@@ -73,6 +73,9 @@ public class PerspectiveScreen extends Screen {
 
 	private static Texture oceanNormalMap = new Texture("water/water_normal.png"); //imported texture
 
+	private float planetRadius;
+	private float atmosphereRadiusMultiplier = 1.1f;
+
 	public PerspectiveScreen() {
 
 	}
@@ -190,6 +193,10 @@ public class PerspectiveScreen extends Screen {
 		this.particle_scene = scene;
 	}
 
+	public void setPlanetRadius(float planetRadius) {
+		this.planetRadius = planetRadius;
+	}
+
 	public void setShaderCameraUniforms(Shader shader, Camera camera) {
 		shader.setUniformMat4("pr_matrix", camera.getProjectionMatrix());
 		shader.setUniformMat4("vw_matrix", camera.getViewMatrix());
@@ -295,8 +302,8 @@ public class PerspectiveScreen extends Screen {
 
 		Shader.PLANET_OCEAN.bind();
 		Shader.PLANET_OCEAN.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -30));
-		Shader.PLANET_OCEAN.setUniform1f("planet_radius", 20f);
+		Shader.PLANET_OCEAN.setUniform3f("planet_pos", new Vec3(0, 0, -this.planetRadius - 30f));
+		Shader.PLANET_OCEAN.setUniform1f("planet_radius", this.planetRadius);
 
 		this.geometryPositionMap.bind(GL_TEXTURE0);
 		this.geometryColorMap.bind(GL_TEXTURE1);
@@ -497,25 +504,6 @@ public class PerspectiveScreen extends Screen {
 			Model.renderModels(this.particle_scene);
 		}
 
-		// -- PLANET ATMOSPHERE -- : render atmosphere with post processing effect. 
-		lightingBuffer.bind();
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-		Shader.PLANET_ATMOSPHERE.bind();
-		Shader.PLANET_ATMOSPHERE.setUniform3f("camera_pos", this.camera.getPos());
-		Shader.PLANET_ATMOSPHERE.setUniform3f("planet_pos", new Vec3(0, 0, -30));
-		Shader.PLANET_ATMOSPHERE.setUniform1f("planet_radius", 21f);
-
-		this.geometryPositionMap.bind(GL_TEXTURE0);
-		this.geometryColorMap.bind(GL_TEXTURE1);
-		this.skyboxDirectionMap.bind(GL_TEXTURE2);
-
-		screenQuad.render();
-
 		// -- RENDER TO OUTPUT --
 		outputBuffer.bind();
 		glDisable(GL_DEPTH_TEST);
@@ -532,9 +520,28 @@ public class PerspectiveScreen extends Screen {
 		this.lightingColorMap.bind(GL_TEXTURE0);
 		//this.geometryNormalMap.bind(GL_TEXTURE0);
 		//this.geometryPositionMap.bind(GL_TEXTURE0);
-		//this.geometryColorMap.bind(GL_TEXTURE0);
+		this.geometryColorMap.bind(GL_TEXTURE0);
 		//this.skyboxDirectionMap.bind(GL_TEXTURE0);
-		//this.lightingBrightnessMap.bind(GL_TEXTURE0);
+		this.lightingBrightnessMap.bind(GL_TEXTURE0);
+		screenQuad.render();
+
+		// -- PLANET ATMOSPHERE -- : render atmosphere with post processing effect. 
+		outputBuffer.bind();
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glDisable(GL_BLEND);
+
+		Shader.PLANET_ATMOSPHERE.bind();
+		Shader.PLANET_ATMOSPHERE.setUniform3f("camera_pos", this.camera.getPos());
+		Shader.PLANET_ATMOSPHERE.setUniform3f("planet_pos", new Vec3(0, 0, -this.planetRadius - 30f));
+		Shader.PLANET_ATMOSPHERE.setUniform1f("planet_radius", this.planetRadius);
+		Shader.PLANET_ATMOSPHERE.setUniform1f("atmosphere_radius", this.planetRadius * this.atmosphereRadiusMultiplier);
+		Shader.PLANET_ATMOSPHERE.setUniform3f("sunLightDir", new Vec3(0.3f, -1f, -0.5f).normalize());
+
+		this.geometryPositionMap.bind(GL_TEXTURE0);
+		this.lightingColorMap.bind(GL_TEXTURE1);
+		this.skyboxDirectionMap.bind(GL_TEXTURE2);
 		screenQuad.render();
 	}
 
