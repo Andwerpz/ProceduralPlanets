@@ -74,7 +74,7 @@ public class PerspectiveScreen extends Screen {
 	private static Texture oceanNormalMap = new Texture("water/water_normal.png"); //imported texture
 
 	private float planetRadius;
-	private float atmosphereRadiusMultiplier = 1.1f;
+	private float atmosphereRadiusMultiplier = 1.13f;
 
 	public PerspectiveScreen() {
 

@@ -85,7 +85,7 @@ public class Main implements Runnable {
 
 		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 		long primaryMonitor = glfwGetPrimaryMonitor();
-		window = glfwCreateWindow(windowWidth, windowHeight, "LWJGL", fullscreen ? primaryMonitor : NULL, NULL);
+		window = glfwCreateWindow(windowWidth, windowHeight, "Procedural Planets", fullscreen ? primaryMonitor : NULL, NULL);
 
 		if (window == NULL) {
 			return;
